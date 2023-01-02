@@ -125,5 +125,48 @@ WHERE ID_BIBLIOTEKE = (SELECT ID FROM BIBLIOTEKA WHERE NAZIV = 'Biblioteka Sv.Na
  
 INSERT INTO KNJIGA_U_BIBLIOTECI
 VALUES((SELECT ID FROM BIBLIOTEKA WHERE NAZIV = 'Biblioteka Krusevac'),
- (SELECT ISBN FROM KNJIGA WHERE NASLOV = 'Prokleta avlija'),
- 3);
+ (SELECT ISBN FROM KNJIGA WHERE NASLOV = 'Prokleta avlija'), 3);
+ 
+4.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Oracle.ManagedDataAccess.Client;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                string strCon = "Data Source=160.99.12.92/GISLAB_PD; User Id=S6969; Password=LoL;";
+                OracleConnection con = new OracleConnection(strCon);
+                string naslovStr;
+                Console.WriteLine("Unesi naslov ");
+                naslovStr = Console.ReadLine();
+                con.Open();
+
+                string komanda = "SELECT NAZIV FROM BIBLIOTEKA INNER JOIN KNJIGA_U_BIBLIOTECI ON ID=ID_BIBLIOTEKE INNER JOIN KNJIGA ON ISBN=ISBN_KNJIGE"
+                    + " WHERE NASLOV='" + naslovStr + "'";
+                OracleCommand cmd = new OracleCommand(komanda, con);
+
+                OracleDataReader r = cmd.ExecuteReader();
+                while (r.Read())
+                {
+                    string strBiblioteka;
+                    strBiblioteka = r.GetString(0);
+                    Console.WriteLine(strBiblioteka);
+                }
+                r.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Doslo je do greske prilikom pristupanja bazi podataka: " + ex.Message);
+            }
+        }
+    }
+}
+
