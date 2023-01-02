@@ -65,3 +65,52 @@ DELETE
 FROM KLIJENT_VOZILO
 WHERE KLIJENT_ID IN(SELECT KLIJENT.ID FROM KLIJENT INNER JOIN KLIJENT_VOZILO ON ID=KLIJENT_ID WHERE DRZAVA='Srbija') AND 
 VOZILO_ID IN (SELECT VOZILO.ID FROM VOZILO INNER JOIN KLIJENT_VOZILO ON ID=VOZILO_ID WHERE PROIZVODJAC='AuDi' AND VMODEL='452');
+
+4.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Oracle.ManagedDataAccess.Client;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                string konekcija = "Data Source=160.99.12.92/GISLAB_PD;User Id=S18895;Password=MihajloBaze22;";
+                OracleConnection con = new OracleConnection(konekcija);
+
+                Console.WriteLine("Unesi registraciju ");
+                string reg;
+                reg = Console.ReadLine();
+
+                con.Open();
+                string kom = " SELECT K.IME,K.PREZIME FROM KLIJENT K INNER JOIN KLIJENT_VOZILO KV ON K.ID = KV.KLIJENT_ID INNER JOIN VOZILO V ON V.ID = KV.VOZILO_ID"
+                                + " WHERE K.DRZAVA = 'Srbija' AND V.REGISTRACIJA ='" + reg + "'";
+
+                OracleCommand cmd = new OracleCommand(kom, con);
+
+                OracleDataReader r = cmd.ExecuteReader();
+
+                while (r.Read())
+                {
+                    string ime, prezime;
+                    ime = r.GetString(0);
+                    prezime = r.GetString(1);
+                    Console.WriteLine("Ime i Prezime:" + ime + " " + prezime);
+                }
+                r.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Doslo je do greske prilikom pristupanja bazi podataka: " + ex.Message);
+            }
+
+        }
+    }
+}
+
