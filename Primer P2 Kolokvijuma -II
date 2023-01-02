@@ -93,3 +93,51 @@ VALUES((SELECT ID_DOKUMENTA FROM DOKUMENT WHERE NAZIV='Odrzavanje'),(SELECT MBR 
 DELETE
 FROM PRAVO_PRISTUPA
 WHERE PRAVO_PRISTUPA.DOKUMENT=(SELECT ID_DOKUMENTA FROM DOKUMENT WHERE NAZIV='Statut');
+
+4.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Oracle.ManagedDataAccess.Client;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                string src = "Data Source=160.99.12.92/GISLAB_PD; User Id=S18895;Password=MihajloBaze22;";
+                OracleConnection con = new OracleConnection(src);
+
+                Console.WriteLine("Unesi naziv");
+                string naziv;
+                naziv = Console.ReadLine();
+                con.Open();
+
+                string komanda = "SELECT MBR,IME,PREZIME FROM ZAPOSLENI INNER JOIN PRAVO_PRISTUPA ON ZAPOSLENI.MBR = PRAVO_PRISTUPA.ZAPOSLENI INNER JOIN DOKUMENT ON DOKUMENT.ID_DOKUMENTA = PRAVO_PRISTUPA.DOKUMENT"
+                   + " WHERE PRAVO = 'P' AND NAZIV='" + naziv + "'";
+                OracleCommand cmd = new OracleCommand(komanda, con);
+
+                OracleDataReader r = cmd.ExecuteReader();
+                while (r.Read())
+                {
+                    string ime, prezime;
+                    long mbr;
+                    mbr = r.GetInt32(0);
+                    ime = r.GetString(1);
+                    prezime = r.GetString(2);
+                    Console.WriteLine("MBR=" + mbr + ", Ime i Prezime: " + ime + " " + prezime);
+                }
+                r.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Doslo je do greske prilikom pristupanja bazi podataka: " + ex.Message);
+            }
+
+        }
+    }
+}
