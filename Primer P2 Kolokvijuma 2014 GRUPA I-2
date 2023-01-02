@@ -68,3 +68,50 @@ DELETE
 FROM TURISTA_HOTEL 
 WHERE TURISTA_ID IN(SELECT TURISTA.ID FROM TURISTA INNER JOIN TURISTA_HOTEL ON ID=TURISTA_ID WHERE DRZAVA='Kina') AND 
 HOTEL_ID IN (SELECT HOTEL.ID FROM HOTEL INNER JOIN TURISTA_HOTEL ON ID=HOTEL_ID WHERE GRAD='London');
+
+4. 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Oracle.ManagedDataAccess.Client;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try {
+                string konekcija = "Data Source=160.99.12.92/GISLAB_PD; User Id=S18895;Password=MihajloBaze22;";
+                OracleConnection con = new OracleConnection(konekcija);
+
+                string naziv;
+                Console.WriteLine("Unesi naziv hotela ");
+                naziv = Console.ReadLine();
+
+                con.Open();
+                string komanda = "SELECT TURISTA.IME,TURISTA.PREZIME  FROM TURISTA INNER JOIN TURISTA_HOTEL ON TURISTA.ID=TURISTA_HOTEL.TURISTA_ID INNER JOIN HOTEL ON HOTEL.ID=TURISTA_HOTEL.HOTEL_ID"
+                    + " WHERE TURISTA.DRZAVA = 'Srbija' AND NAZIV ='" + naziv + "'";
+                OracleCommand cmd = new OracleCommand(komanda, con);
+                OracleDataReader r = cmd.ExecuteReader();
+
+                while(r.Read())
+                {
+                    string ime, prezime;
+                    ime = r.GetString(0);
+                    prezime = r.GetString(1);
+                    Console.WriteLine("Ime i Prezime:" + ime + " "+prezime);
+
+                }
+                r.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Doslo je do greske prilikom pristupanja bazi podataka: " + ex.Message);
+            }
+
+        }
+    }
+}
