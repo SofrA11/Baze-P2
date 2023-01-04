@@ -77,3 +77,51 @@ FROM ISTORIJA_RADNIH_MESTA
 WHERE ID_R_MESTO NOT IN (SELECT ID_R_MESTO FROM ZAPOSLENI);
 
 4.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Oracle.ManagedDataAccess.Client;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                string izvor = "Data Source=160.99.12.92/GISLAB_PD;User Id=S18895;Password=MihajloBaze22;";
+                OracleConnection con = new OracleConnection(izvor);
+                Console.WriteLine("Unesi naziv odeljenja ");
+                string naziv = Console.ReadLine();
+                con.Open();
+
+                string komanda = "SELECT IME,PREZIME,PLATA FROM ZAPOSLENI Z INNER JOIN ISTORIJA_RADNIH_MESTA IRM ON Z.ID=IRM.ID_ZAP" +
+                    " WHERE Z.ID_ODELJENJE=(SELECT ID FROM ODELJENJE WHERE NAZIV='" + naziv + "') AND IRM.DATUM_KRAJA-IRM.DATUM_POC>100";
+
+                OracleCommand cmd = new OracleCommand(komanda, con);
+
+                OracleDataReader r = cmd.ExecuteReader();
+
+                while (r.Read())
+                {
+                    string ime, prezime;
+                    double plata;
+                    ime = r.GetString(0);
+                    prezime = r.GetString(1);
+                    plata = r.GetDouble(2);
+                    Console.WriteLine("Ime i prezime: " + ime + " " + prezime + ", plata:" + plata);
+                }
+                r.Close();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Doslo je do greske: " + ex.Message);
+            }
+
+        }
+    }
+}
+
